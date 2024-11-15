@@ -1,4 +1,7 @@
+import 'package:door_drop/services/apiValues.dart';
+import 'package:door_drop/views/email_verification_page.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 class UserSignupPage extends StatefulWidget {
@@ -14,12 +17,26 @@ class _UserSignupPageState extends State<UserSignupPage> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  void _signup() {
+  void _signup() async {
     if (_formKey.currentState!.validate()) {
       // Implement login functionality
       final email = _emailController.text;
+      final name = _nameController.text;
       final password = _passwordController.text;
       print("Email: $email, Password: $password");
+      var userSignUpResult = await apiValues.userSignUp(name, email, password);
+      print(userSignUpResult);
+      if (userSignUpResult['Success']) {
+        Get.to(EmailVerificationPage(
+          id: userSignUpResult['adminId'],
+          email: email,
+          password: password,
+        ));
+      } else {
+        Fluttertoast.showToast(
+          msg: userSignUpResult['adminId'],
+        );
+      }
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:door_drop/views/app_landing_page.dart';
 import 'package:door_drop/views/user/user_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: UserLoginPage(),
+      home: AppLandingPage(),
     );
   }
 }

@@ -47,6 +47,25 @@ class Apivalues {
       return null;
     }
   }
+
+  Future<dynamic> verfyUserByEmail(String id, String otp) async {
+    try {
+      var verifyEmailAPI =
+          "https://dealsdraybackend.onrender.com/api/admin/verifyOTP";
+      var data = {"adminId": id, "otp": otp};
+
+      var response = await http.post(Uri.parse(verifyEmailAPI),
+          headers: {
+            'Content-Type': 'application/json', // Set the content type to JSON
+          },
+          body: jsonEncode(data));
+      var jsonResponse = jsonDecode(response.body);
+      return jsonResponse;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
 }
 
 var apiValues = Apivalues();

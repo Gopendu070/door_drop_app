@@ -1,17 +1,16 @@
+import 'package:door_drop/app_style/AppStyle.dart';
 import 'package:door_drop/services/apiValues.dart';
 import 'package:door_drop/views/user/user_home.dart';
 import 'package:door_drop/views/user/user_signup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../app_style/AppStyle.dart';
-
-class UserLoginPage extends StatefulWidget {
+class PartnerLoginPage extends StatefulWidget {
   @override
-  _UserLoginPageState createState() => _UserLoginPageState();
+  _PartnerLoginPageState createState() => _PartnerLoginPageState();
 }
 
-class _UserLoginPageState extends State<UserLoginPage> {
+class _PartnerLoginPageState extends State<PartnerLoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -20,12 +19,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text;
       final password = _passwordController.text;
-      print("Email: $email, Password: $password");
-      var userLoginResult = await apiValues.userLogin(email, password);
-      print(userLoginResult);
-      if (userLoginResult['success']) {
-        Get.offAll(UserHome());
-      }
+      //todo
     }
   }
 
@@ -201,7 +195,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     color: Colors.white,
                   ),
                   Text(
-                    "Customer login",
+                    "Partner login",
                     style: Appstyle.whiteText
                         .copyWith(fontWeight: FontWeight.bold, fontSize: 18),
                   )
