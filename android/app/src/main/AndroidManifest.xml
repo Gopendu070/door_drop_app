@@ -6,7 +6,7 @@
 
 
     <application
-        android:label="door_drop"
+        android:label="Door Drop"
         android:requestLegacyExternalStorage="true"
         android:enableOnBackInvokedCallback="true"
         android:name="${applicationName}"

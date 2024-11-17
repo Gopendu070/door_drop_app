@@ -17,12 +17,15 @@ class _UserLoginPageState extends State<UserLoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  bool isLoading = false;
   void _login() async {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text;
       final password = _passwordController.text;
       print("Email id: $email, Password: $password");
+      setState(() {
+        isLoading = true;
+      });
       var loginResult = await apiValues.userLogin(email, password);
       print(loginResult);
       if (loginResult['success']) {
@@ -35,6 +38,9 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
         SharedPrefHelper.setId(loginResult['data']['_id']);
         SharedPrefHelper.setBoxId(loginResult['data']['boxId']);
+        setState(() {
+          isLoading = false;
+        });
         Get.offAll(UserHome());
       } else {
         Fluttertoast.showToast(msg: loginResult['massage']);
@@ -162,7 +168,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                         ),
                         SizedBox(height: 24.0),
                         ElevatedButton(
-                          onPressed: _login,
+                          onPressed: isLoading ? () {} : _login,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
@@ -170,7 +176,13 @@ class _UserLoginPageState extends State<UserLoginPage> {
                             padding: EdgeInsets.symmetric(
                                 vertical: 4.0, horizontal: 50.0),
                           ),
-                          child: Text('Login', style: TextStyle(fontSize: 18)),
+                          // child: ,
+                          child: isLoading
+                              ? SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: CircularProgressIndicator())
+                              : Text('Login', style: TextStyle(fontSize: 18)),
                         ),
                         SizedBox(height: 16.0),
                       ],
