@@ -1,14 +1,35 @@
 import 'package:door_drop/views/app_landing_page.dart';
+import 'package:door_drop/views/partner/partner_home.dart';
+import 'package:door_drop/views/user/user_home.dart';
 import 'package:door_drop/views/user/user_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-void main() {
+import 'services/sharedPrefHelper.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefHelper.initPref();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  Widget checkRoute() {
+    if (SharedPrefHelper.getIsPartner()) {
+      if (SharedPrefHelper.getIsLoggedIn()) {
+        return PartnerHome();
+      } else {
+        return AppLandingPage();
+      }
+    } else {
+      if (SharedPrefHelper.getIsLoggedIn()) {
+        return UserHome();
+      } else {
+        return AppLandingPage();
+      }
+    }
+  }
 
   // This widget is the root of your application.
   @override
@@ -20,7 +41,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: AppLandingPage(),
+      home: checkRoute(),
     );
   }
 }

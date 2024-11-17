@@ -1,15 +1,16 @@
 import 'package:door_drop/services/apiValues.dart';
+import 'package:door_drop/services/sharedPrefHelper.dart';
 import 'package:door_drop/views/email_verification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
-class UserSignupPage extends StatefulWidget {
+class PartnerSignupPage extends StatefulWidget {
   @override
-  _UserSignupPageState createState() => _UserSignupPageState();
+  _PartnerSignupPageState createState() => _PartnerSignupPageState();
 }
 
-class _UserSignupPageState extends State<UserSignupPage> {
+class _PartnerSignupPageState extends State<PartnerSignupPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -25,18 +26,11 @@ class _UserSignupPageState extends State<UserSignupPage> {
       final name = _nameController.text;
       final phone = _phoneController.text;
       final password = _passwordController.text;
-      print("Email: $email, Phone: $phone, Password: $password");
-      var otpSendResult = await apiValues.sendOtp(email);
-      print(otpSendResult);
-      if (otpSendResult['success']) {
-        Fluttertoast.showToast(msg: "OTP sent successfully");
-        Get.to(EmailVerificationPage(
-            email: email, password: password, name: name, phone: phone));
-      } else {
-        Fluttertoast.showToast(
-          msg: "Something went wrong",
-        );
-      }
+      SharedPrefHelper.setPartnerName(name);
+      SharedPrefHelper.setPartnerEmail(email);
+      SharedPrefHelper.setPartnerPassword(password);
+      SharedPrefHelper.setPartnerPhone(phone);
+      Get.back();
     }
   }
 

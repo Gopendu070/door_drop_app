@@ -1,16 +1,22 @@
 import 'package:door_drop/services/apiValues.dart';
+import 'package:door_drop/services/sharedPrefHelper.dart';
+import 'package:door_drop/views/user/user_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 
 class EmailVerificationPage extends StatefulWidget {
-  const EmailVerificationPage(
-      {super.key,
-      required this.email,
-      required this.password,
-      required this.id});
+  const EmailVerificationPage({
+    super.key,
+    required this.email,
+    required this.password,
+    required this.name,
+    required this.phone,
+  });
+  final String name;
   final String email;
   final String password;
-  final String id;
+  final String phone;
 
   @override
   State<EmailVerificationPage> createState() => _EmailVerificationPageState();
@@ -19,13 +25,24 @@ class EmailVerificationPage extends StatefulWidget {
 class _EmailVerificationPageState extends State<EmailVerificationPage> {
   var _otpController = TextEditingController();
   void verifyEmail(String otp) async {
-    print(widget.id);
-    var otpResult = await apiValues.verfyUserByEmail(widget.id, otp);
+    var otpResult = await apiValues.verfyUserByEmail(widget.email, otp);
     print(otpResult);
     if (otpResult['success']) {
       print(otpResult);
       //todo
+      signUp();
+    } else {
+      Fluttertoast.showToast(msg: otpResult['message']);
     }
+  }
+
+  void signUp() async {
+    var signUpResult = await apiValues.userSignUp(
+        widget.name, widget.email, widget.password, widget.phone);
+    print(signUpResult);
+
+    Fluttertoast.showToast(msg: "Email verified successfully");
+    Get.offAll(UserLoginPage());
   }
 
   @override

@@ -1,7 +1,9 @@
 import 'package:door_drop/services/apiValues.dart';
+import 'package:door_drop/services/sharedPrefHelper.dart';
 import 'package:door_drop/views/user/user_home.dart';
 import 'package:door_drop/views/user/user_signup_page.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import '../../app_style/AppStyle.dart';
@@ -20,11 +22,22 @@ class _UserLoginPageState extends State<UserLoginPage> {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text;
       final password = _passwordController.text;
-      print("Email: $email, Password: $password");
-      var userLoginResult = await apiValues.userLogin(email, password);
-      print(userLoginResult);
-      if (userLoginResult['success']) {
+      print("Email id: $email, Password: $password");
+      var loginResult = await apiValues.userLogin(email, password);
+      print(loginResult);
+      if (loginResult['success']) {
+        SharedPrefHelper.setIsLoggedInTrue();
+        SharedPrefHelper.setName(loginResult['data']['name']);
+        SharedPrefHelper.setPhone(loginResult['data']['phone']);
+        SharedPrefHelper.setEmail(loginResult['data']['email']);
+        //Todo
+        // SharedPrefHelper.setAddress(loginResult['data']['address'] ?? "");
+
+        SharedPrefHelper.setId(loginResult['data']['_id']);
+        SharedPrefHelper.setBoxId(loginResult['data']['boxId']);
         Get.offAll(UserHome());
+      } else {
+        Fluttertoast.showToast(msg: loginResult['massage']);
       }
     }
   }

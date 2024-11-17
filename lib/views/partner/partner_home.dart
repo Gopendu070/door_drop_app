@@ -1,7 +1,5 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
-import 'dart:async';
-
 import 'package:door_drop/app_style/AppStyle.dart';
 import 'package:door_drop/other/helper.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
@@ -14,14 +12,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
-class UserHome extends StatefulWidget {
-  const UserHome({super.key});
+class PartnerHome extends StatefulWidget {
+  const PartnerHome({super.key});
 
   @override
-  State<UserHome> createState() => _UserHomeState();
+  State<PartnerHome> createState() => _PartnerHomeState();
 }
 
-class _UserHomeState extends State<UserHome> {
+final name = SharedPrefHelper.getPartnerName();
+final email = SharedPrefHelper.getPartnerEmail();
+final phone = SharedPrefHelper.getPartnerPhone();
+final id = "110231019";
+
+class _PartnerHomeState extends State<PartnerHome> {
   void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -41,26 +44,12 @@ class _UserHomeState extends State<UserHome> {
             TextButton(
               onPressed: () {
                 // Perform logout action
-                var partnerEmail = SharedPrefHelper.getPartnerEmail();
-                var partnerPass = SharedPrefHelper.getPartnerPassword();
-                var partnerName = SharedPrefHelper.getPartnerName();
-                var partnerPhone = SharedPrefHelper.getPartnerPhone();
-                var address = SharedPrefHelper.getAddress();
-                var boxId = SharedPrefHelper.getBoxId();
                 Navigator.of(context).pop();
-                SharedPrefHelper.clearPref();
-                //set the partner's shared pref
-                SharedPrefHelper.setPartnerEmail(partnerEmail);
-                SharedPrefHelper.setPartnerPassword(partnerPass);
-                SharedPrefHelper.setPartnerName(partnerName);
-                SharedPrefHelper.setPartnerPhone(partnerPhone);
-                //set user address and boxId
-                SharedPrefHelper.setAddress(address);
-                SharedPrefHelper.setBoxId(boxId);
-                Timer(Duration(seconds: 1), () {
-                  Get.offAll(AppLandingPage());
-                  print('User logged out');
-                });
+                SharedPrefHelper.setIsPartnerFalse();
+                SharedPrefHelper.setIsLoggedInFlase();
+
+                Get.offAll(AppLandingPage());
+                print('User logged out');
               },
               child: Text(
                 'Logout',
@@ -78,6 +67,17 @@ class _UserHomeState extends State<UserHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(175, 54, 54, 54),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color.fromARGB(255, 83, 45, 149),
+        onPressed: () {
+          Get.to(QrScannerScreen());
+        },
+        child: Icon(
+          Icons.qr_code_scanner,
+          size: 35,
+          color: Colors.amber,
+        ),
+      ),
       endDrawer: Container(
         width: 200,
         color: Appstyle.appBackGround.withOpacity(0.95),
@@ -98,7 +98,7 @@ class _UserHomeState extends State<UserHome> {
               height: 10,
             ),
             Text(
-              SharedPrefHelper.getName(),
+              SharedPrefHelper.getPartnerName(),
               style: Appstyle.boldText.copyWith(color: Colors.amber),
             ),
             SizedBox(
@@ -110,22 +110,7 @@ class _UserHomeState extends State<UserHome> {
             SizedBox(
               height: 25,
             ),
-            DrawerClipWidget(
-              label: "Set Address",
-              func: () {
-                Get.to(AddressFormPage());
-              },
-            ),
-            SizedBox(
-              height: 25,
-            ),
-            DrawerClipWidget(
-              label: "Set Box Password",
-              func: () {},
-            ),
-            SizedBox(
-              height: 25,
-            ),
+            // Spacer(),
             DrawerClipWidget(
               label: "About Us",
               func: () {},
@@ -139,12 +124,16 @@ class _UserHomeState extends State<UserHome> {
                 _showLogoutConfirmationDialog(context);
               },
             ),
+            SizedBox(
+              height: 35,
+            ),
           ],
         ),
       ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
+            actions: null,
             expandedHeight: 300.0, // Height when expanded
             pinned: false, // Keeps the app bar visible when collapsed
             floating: false, // Prevents app bar from appearing mid-scroll
@@ -152,13 +141,54 @@ class _UserHomeState extends State<UserHome> {
             flexibleSpace: FlexibleSpaceBar(
                 background: Stack(children: [
               Container(
-                width: MediaQuery.of(context).size.width,
-                height: 330,
-                child: Image.asset(
-                  "asset/baba.jpg",
-                  fit: BoxFit.cover,
-                ),
-              ),
+                  width: MediaQuery.of(context).size.width,
+                  height: 330,
+                  color: const Color.fromARGB(228, 0, 0, 0),
+                  child: Center(
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.amber)),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(200),
+                                image: DecorationImage(
+                                    image: AssetImage(
+                                      'asset/deliver.jpg',
+                                    ),
+                                    fit: BoxFit.cover)),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          partnerDetailsText(
+                            text1: "Name: ",
+                            text2: name,
+                          ),
+                          partnerDetailsText(
+                            text1: "Email: ",
+                            text2: email,
+                          ),
+                          partnerDetailsText(
+                            text1: "Mobile: ",
+                            text2: phone,
+                          ),
+                          partnerDetailsText(
+                            text1: "Partner ID: ",
+                            text2: id,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )),
               Positioned(
                 top: 25,
                 right: 10,
@@ -178,85 +208,21 @@ class _UserHomeState extends State<UserHome> {
               )
             ])),
           ),
-          SliverAppBar(
-            expandedHeight: 40,
-            // collapsedHeight: 65,
-            toolbarHeight: 45,
-            pinned: true,
-            snap: false,
-            flexibleSpace: GestureDetector(
-              onTap: () {
-                setState(() {
-                  isBoxLocked = !isBoxLocked;
-                });
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    gradient: isBoxLocked
-                        ? LinearGradient(
-                            colors: [
-                                const Color.fromARGB(214, 28, 28, 28),
-                                Color.fromARGB(170, 87, 231, 162),
-                                Color.fromARGB(170, 87, 231, 162),
-                                Color.fromARGB(170, 87, 231, 162),
-                                Color.fromARGB(214, 28, 28, 28),
-                              ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight)
-                        : LinearGradient(
-                            colors: [
-                                const Color.fromARGB(214, 28, 28, 28),
-                                Color.fromARGB(224, 246, 67, 67),
-                                Color.fromARGB(224, 246, 67, 67),
-                                Color.fromARGB(224, 246, 67, 67),
-                                Color.fromARGB(214, 28, 28, 28),
-                              ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      isBoxLocked ? Icons.lock : Icons.lock_open,
-                      size: 25,
-                    ),
-                    Text(
-                      isBoxLocked ? 'Box Locked' : 'Box Unlocked',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
           SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 if (index == 0) {
-                  return Container(
-                    height: 120,
-                    color: Colors.black87,
-                    child: Row(
-                      children: [
-                        QrCardWidget(
-                          icon: Icons.qr_code_scanner,
-                          label: "Scan QR",
-                          func: () {
-                            Get.to(QrScannerScreen());
-                          },
-                        ),
-                        QrCardWidget(
-                          icon: Icons.qr_code,
-                          label: "Generate QR",
-                          func: () {
-                            Get.to(GenerateQRFormPage());
-                          },
-                        ),
-                      ],
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0, vertical: 12),
+                    child: Text(
+                      "Deliveries",
+                      style: Appstyle.boldText
+                          .copyWith(fontSize: 18, color: Colors.white),
                     ),
                   );
                 } else {
-                  var details = HelperClass.deliveryList[index - 1];
+                  var details = HelperClass.deliveryList[index];
                   return Stack(children: [
                     Container(
                         margin: EdgeInsets.all(8),
@@ -311,19 +277,15 @@ class _UserHomeState extends State<UserHome> {
                         right: 5,
                         top: 5,
                         child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                HelperClass.deliveryList.removeAt(index - 1);
-                              });
-                            },
+                            onPressed: () {},
                             icon: Icon(
-                              Icons.delete,
+                              Icons.more_vert,
                               color: const Color.fromARGB(221, 255, 255, 255),
                             )))
                   ]);
                 }
               },
-              childCount: HelperClass.deliveryList.length + 1,
+              childCount: HelperClass.deliveryList.length - 1,
             ),
           ),
         ],
@@ -338,6 +300,36 @@ class _UserHomeState extends State<UserHome> {
       return Colors.orangeAccent;
     else
       return Colors.redAccent;
+  }
+}
+
+class partnerDetailsText extends StatelessWidget {
+  final String text1;
+  final String text2;
+  const partnerDetailsText({
+    super.key,
+    required this.text1,
+    required this.text2,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          text1,
+          style:
+              Appstyle.semiBoldText.copyWith(color: Colors.amber, fontSize: 16),
+        ),
+        Text(
+          text2,
+          style: Appstyle.semiBoldText.copyWith(
+              color: const Color.fromARGB(255, 226, 224, 204), fontSize: 16),
+        )
+      ],
+    );
   }
 }
 
