@@ -3,6 +3,7 @@
 import 'package:door_drop/app_style/AppStyle.dart';
 import 'package:door_drop/other/helper.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
+import 'package:door_drop/views/about_us_page.dart';
 import 'package:door_drop/views/app_landing_page.dart';
 import 'package:door_drop/views/user/address_form_page.dart';
 import 'package:door_drop/views/user/generate_qr_page.dart';
@@ -113,7 +114,9 @@ class _PartnerHomeState extends State<PartnerHome> {
             // Spacer(),
             DrawerClipWidget(
               label: "About Us",
-              func: () {},
+              func: () {
+                Get.to(AboutUsPage());
+              },
             ),
             SizedBox(
               height: 25,

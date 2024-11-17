@@ -68,6 +68,25 @@ class Apivalues {
     }
   }
 
+  Future<dynamic> setBoxPassword(String boxId, String password) async {
+    try {
+      var setBoxPwAPI =
+          "https://doordropbackend.onrender.com/api/box/setpassword";
+      var data = {"boxId": boxId, "password": password};
+
+      var response = await http.post(Uri.parse(setBoxPwAPI),
+          headers: {
+            'Content-Type': 'application/json', // Set the content type to JSON
+          },
+          body: jsonEncode(data));
+      var jsonResponse = jsonDecode(response.body);
+      return jsonResponse;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   Future<dynamic> sendOtp(String email) async {
     try {
       var sendOtpAPI = "https://doordropbackend.onrender.com/api/user/sendotp";

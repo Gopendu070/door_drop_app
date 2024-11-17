@@ -5,10 +5,12 @@ import 'dart:async';
 import 'package:door_drop/app_style/AppStyle.dart';
 import 'package:door_drop/other/helper.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
+import 'package:door_drop/views/about_us_page.dart';
 import 'package:door_drop/views/app_landing_page.dart';
 import 'package:door_drop/views/user/address_form_page.dart';
 import 'package:door_drop/views/user/generate_qr_page.dart';
 import 'package:door_drop/views/user/qr_scanner_screen.dart';
+import 'package:door_drop/views/user/set_box_password.dart';
 import 'package:door_drop/views/user/user_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -121,14 +123,18 @@ class _UserHomeState extends State<UserHome> {
             ),
             DrawerClipWidget(
               label: "Set Box Password",
-              func: () {},
+              func: () {
+                Get.to(SetBoxPasswordPage());
+              },
             ),
             SizedBox(
               height: 25,
             ),
             DrawerClipWidget(
               label: "About Us",
-              func: () {},
+              func: () {
+                Get.to(AboutUsPage());
+              },
             ),
             SizedBox(
               height: 25,
