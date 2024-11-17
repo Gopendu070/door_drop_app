@@ -145,7 +145,7 @@ class _UserHomeState extends State<UserHome> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: 300.0, // Height when expanded
+            expandedHeight: 320.0, // Height when expanded
             pinned: false, // Keeps the app bar visible when collapsed
             floating: false, // Prevents app bar from appearing mid-scroll
             snap: false, // Works with floating, enables snapping behavior
@@ -153,10 +153,21 @@ class _UserHomeState extends State<UserHome> {
                 background: Stack(children: [
               Container(
                 width: MediaQuery.of(context).size.width,
-                height: 330,
-                child: Image.asset(
-                  "asset/baba.jpg",
-                  fit: BoxFit.cover,
+                height: 350,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                      const Color.fromARGB(255, 90, 88, 88),
+                      const Color.fromARGB(225, 0, 0, 0),
+                      Colors.black
+                    ])),
+                child: Center(
+                  child: Image.asset(
+                    "asset/box.png",
+                    height: 280,
+                  ),
                 ),
               ),
               Positioned(
@@ -198,8 +209,8 @@ class _UserHomeState extends State<UserHome> {
                                 const Color.fromARGB(214, 28, 28, 28),
                                 Color.fromARGB(170, 87, 231, 162),
                                 Color.fromARGB(170, 87, 231, 162),
-                                Color.fromARGB(170, 87, 231, 162),
-                                Color.fromARGB(214, 28, 28, 28),
+                                Color.fromARGB(196, 61, 165, 115),
+                                Color.fromARGB(235, 28, 28, 28),
                               ],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight)
