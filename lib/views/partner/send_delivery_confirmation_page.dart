@@ -23,6 +23,15 @@ class SendDeliveryConfirmationPage extends StatelessWidget {
     }
   }
 
+  String extractBoxId(String input) {
+    // Regular expression to match a substring starting with "~#" and ending with "#~"
+    final regex = RegExp(r'~#(.*?)#~');
+    final match = regex.firstMatch(input);
+
+    // Return the extracted string if found, otherwise return an empty string
+    return match != null ? match.group(1) ?? '' : '';
+  }
+
   String? encodeQueryParameters(Map<String, String> params) {
     return params.entries
         .map((MapEntry<String, String> e) =>
@@ -89,7 +98,7 @@ class SendDeliveryConfirmationPage extends StatelessWidget {
             ),
             ElevatedButton(
                 onPressed: () async {
-                  var boxId = SharedPrefHelper.getBoxId();
+                  var boxId = extractBoxId(data);
                   var partnerEmail = SharedPrefHelper.getPartnerEmail();
 
                   var recipient = findEmail(data);

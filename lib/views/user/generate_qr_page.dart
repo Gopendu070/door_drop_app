@@ -30,20 +30,31 @@ class _GenerateQRFormPageState extends State<GenerateQRFormPage> {
     var email = emailController.text;
     var phone = phoneController.text;
     var orderId = orderIdController.text;
+    var boxId = "~#" + SharedPrefHelper.getBoxId() + "#~";
     var address = SharedPrefHelper.getAddress();
     var amount = totalAmountController.text;
     var quantity = qty.toString();
     var data = """
         Name: ${name.trim()},
         Email: ${email.trim()},
-        Phone: ${phone.trim()},
+        Phone: ${phone},
+        BoxID; $boxId,
         Address: $address,
 
         Order Details:-
-        Order ID: ${orderId.trim()},
-        Quantity: ${quantity.trim()},
-        Total: Rs. ${amount.trim()}""";
+        Order ID: ${orderId},
+        Quantity: ${quantity},
+        Total: Rs. ${amount}""";
     return data;
+  }
+
+  String extractBoxId(String input) {
+    // Regular expression to match a substring starting with "~#" and ending with "#~"
+    final regex = RegExp(r'~#(.*?)#~');
+    final match = regex.firstMatch(input);
+
+    // Return the extracted string if found, otherwise return an empty string
+    return match != null ? match.group(1) ?? '' : '';
   }
 
   @override
@@ -170,8 +181,6 @@ class _GenerateQRFormPageState extends State<GenerateQRFormPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          // Action if all fields are valid
-
                           if (SharedPrefHelper.getAddress() == "") {
                             Fluttertoast.showToast(
                                 msg: "Please set your address first");
