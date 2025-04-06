@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+///// added to .gitignore
+
 class Apivalues {
   Future<dynamic> userLogin(String email, String passWord) async {
     try {
@@ -104,7 +106,7 @@ class Apivalues {
       return null;
     }
   }
-  /////////////////////////////
+  /////////////////////////////////////////////////////////
 }
 
 var apiValues = Apivalues();
