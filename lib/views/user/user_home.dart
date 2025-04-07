@@ -203,6 +203,11 @@ class _UserHomeState extends State<UserHome> {
             snap: false,
             flexibleSpace: GestureDetector(
               onTap: () {
+                print(SharedPrefHelper.getEmail());
+                print(SharedPrefHelper.getUserToken());
+                print(SharedPrefHelper.getAddress());
+                print(SharedPrefHelper.getPhone());
+                print(SharedPrefHelper.getName());
                 setState(() {
                   isBoxLocked = !isBoxLocked;
                 });

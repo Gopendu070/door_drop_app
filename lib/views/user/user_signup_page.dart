@@ -1,5 +1,5 @@
 import 'package:door_drop/services/apiValues.dart';
-import 'package:door_drop/views/email_verification_page.dart';
+import 'package:door_drop/views/user_email_verification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -26,21 +26,30 @@ class _UserSignupPageState extends State<UserSignupPage> {
       final phone = _phoneController.text;
       final password = _passwordController.text;
       print("Email: $email, Phone: $phone, Password: $password");
-      var otpSendResult = await apiValues.sendOtp(email);
-      print(otpSendResult);
-      if (otpSendResult['success']) {
+      setState(() {
+        isLoading = true;
+      });
+      var userSignupResult =
+          await apiValues.userSignUp(name, email, password, phone);
+      print(userSignupResult);
+
+      if (userSignupResult['success']) {
         Fluttertoast.showToast(msg: "OTP sent successfully");
-        Get.to(EmailVerificationPage(
+        Get.to(UserEmailVerificationPage(
             email: email, password: password, name: name, phone: phone));
       } else {
         Fluttertoast.showToast(
           msg: "Something went wrong",
         );
       }
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   bool isPwVisible = false;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -282,8 +291,13 @@ class _UserSignupPageState extends State<UserSignupPage> {
                               padding: EdgeInsets.symmetric(
                                   vertical: 4.0, horizontal: 50.0),
                             ),
-                            child:
-                                Text('Sign Up', style: TextStyle(fontSize: 18)),
+                            child: isLoading
+                                ? SizedBox(
+                                    height: 25,
+                                    width: 25,
+                                    child: CircularProgressIndicator())
+                                : Text('Sign Up',
+                                    style: TextStyle(fontSize: 18)),
                           ),
                         ],
                       ),

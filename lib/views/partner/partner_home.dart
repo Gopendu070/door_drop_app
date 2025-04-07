@@ -23,7 +23,7 @@ class PartnerHome extends StatefulWidget {
 final name = SharedPrefHelper.getPartnerName();
 final email = SharedPrefHelper.getPartnerEmail();
 final phone = SharedPrefHelper.getPartnerPhone();
-final id = "110231019";
+final id = SharedPrefHelper.getPartnerId();
 
 class _PartnerHomeState extends State<PartnerHome> {
   void _showLogoutConfirmationDialog(BuildContext context) {
@@ -184,10 +184,10 @@ class _PartnerHomeState extends State<PartnerHome> {
                             text1: "Mobile: ",
                             text2: phone,
                           ),
-                          partnerDetailsText(
-                            text1: "Partner ID: ",
-                            text2: id,
-                          ),
+                          // partnerDetailsText(
+                          //   text1: "Partner ID: ",
+                          //   text2: id,
+                          // ),
                         ],
                       ),
                     ),
@@ -326,10 +326,14 @@ class partnerDetailsText extends StatelessWidget {
           style:
               Appstyle.semiBoldText.copyWith(color: Colors.amber, fontSize: 16),
         ),
-        Text(
-          text2,
-          style: Appstyle.semiBoldText.copyWith(
-              color: const Color.fromARGB(255, 226, 224, 204), fontSize: 16),
+        Flexible(
+          child: Text(
+            text2,
+            style: Appstyle.semiBoldText.copyWith(
+                overflow: TextOverflow.ellipsis,
+                color: const Color.fromARGB(255, 226, 224, 204),
+                fontSize: 16),
+          ),
         )
       ],
     );

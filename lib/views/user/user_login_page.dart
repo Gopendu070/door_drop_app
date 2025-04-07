@@ -30,20 +30,24 @@ class _UserLoginPageState extends State<UserLoginPage> {
       print(loginResult);
       if (loginResult['success']) {
         SharedPrefHelper.setIsLoggedInTrue();
-        SharedPrefHelper.setName(loginResult['data']['name']);
-        SharedPrefHelper.setPhone(loginResult['data']['phone']);
-        SharedPrefHelper.setEmail(loginResult['data']['email']);
+        SharedPrefHelper.setName(loginResult['user']['name']);
+        SharedPrefHelper.setUserToken(loginResult['token']);
+        SharedPrefHelper.setPhone(loginResult['user']['phoneNumber'] ?? "");
+        SharedPrefHelper.setEmail(loginResult['user']['email']);
         //Todo
-        // SharedPrefHelper.setAddress(loginResult['data']['address'] ?? "");
+        // SharedPrefHelper.setAddress(loginResult['user']['address'] ?? "");
 
-        SharedPrefHelper.setId(loginResult['data']['_id']);
-        SharedPrefHelper.setBoxId(loginResult['data']['boxId']);
+        SharedPrefHelper.setId(loginResult['user']['_id']);
+        SharedPrefHelper.setBoxId(loginResult['user']['boxId'] ?? "");
         setState(() {
           isLoading = false;
         });
         Get.offAll(UserHome());
       } else {
-        Fluttertoast.showToast(msg: loginResult['massage']);
+        setState(() {
+          isLoading = false;
+        });
+        Fluttertoast.showToast(msg: loginResult['message']);
       }
     }
   }

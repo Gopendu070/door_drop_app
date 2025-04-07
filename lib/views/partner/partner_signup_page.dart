@@ -1,6 +1,7 @@
 import 'package:door_drop/services/apiValues.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
-import 'package:door_drop/views/email_verification_page.dart';
+import 'package:door_drop/views/partner/partner_email_verification_page.dart';
+import 'package:door_drop/views/user_email_verification_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -18,7 +19,7 @@ class _PartnerSignupPageState extends State<PartnerSignupPage> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-
+  var isLoading = false;
   void _signup() async {
     if (_formKey.currentState!.validate()) {
       // Implement login functionality
@@ -26,11 +27,23 @@ class _PartnerSignupPageState extends State<PartnerSignupPage> {
       final name = _nameController.text;
       final phone = _phoneController.text;
       final password = _passwordController.text;
-      SharedPrefHelper.setPartnerName(name);
-      SharedPrefHelper.setPartnerEmail(email);
-      SharedPrefHelper.setPartnerPassword(password);
-      SharedPrefHelper.setPartnerPhone(phone);
-      Get.back();
+      setState(() {
+        isLoading = !isLoading;
+      });
+      var partnerSignupResult =
+          await apiValues.deliveryBoySignUp(name, email, password, phone);
+      if (partnerSignupResult['success']) {
+        Fluttertoast.showToast(msg: "OTP sent successfully");
+        Get.to(PartnerEmailVerificationPage(
+            email: email, password: password, name: name, phone: phone));
+      } else {
+        Fluttertoast.showToast(
+          msg: "Something went wrong",
+        );
+      }
+      setState(() {
+        isLoading = !isLoading;
+      });
     }
   }
 
@@ -276,8 +289,13 @@ class _PartnerSignupPageState extends State<PartnerSignupPage> {
                               padding: EdgeInsets.symmetric(
                                   vertical: 4.0, horizontal: 50.0),
                             ),
-                            child:
-                                Text('Sign Up', style: TextStyle(fontSize: 18)),
+                            child: isLoading
+                                ? SizedBox(
+                                    height: 25,
+                                    width: 25,
+                                    child: CircularProgressIndicator())
+                                : Text('Sign Up',
+                                    style: TextStyle(fontSize: 18)),
                           ),
                         ],
                       ),

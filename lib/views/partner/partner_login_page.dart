@@ -19,22 +19,35 @@ class _PartnerLoginPageState extends State<PartnerLoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  var isLoading = false;
   void _login() async {
     if (_formKey.currentState!.validate()) {
       final email = _emailController.text;
       final password = _passwordController.text;
-      //todo
-      SharedPrefHelper.setIsPartnerTrue();
-      SharedPrefHelper.setIsLoggedInTrue();
-      if (email == SharedPrefHelper.getPartnerEmail() &&
-          password == SharedPrefHelper.getPartnerPassword()) {
-        Timer(Duration(seconds: 2), () {
-          Get.offAll(PartnerHome());
-        });
+      print("Email id: $email, Password: $password");
+      setState(() {
+        isLoading = true;
+      });
+      var loginResult = await apiValues.deliveryBoyLogin(email, password);
+      print(loginResult);
+      if (loginResult['success']) {
+        SharedPrefHelper.setIsLoggedInTrue();
+        SharedPrefHelper.setIsPartnerTrue();
+        SharedPrefHelper.setPartnerName(loginResult['user']['name']);
+        SharedPrefHelper.setPartnerToken(loginResult['token']);
+        SharedPrefHelper.setPartnerPhone(
+            loginResult['user']['phoneNumber'] ?? "");
+        SharedPrefHelper.setPartnerEmail(loginResult['user']['email']);
+
+        SharedPrefHelper.setPartnerId(loginResult['user']['_id']);
+
+        Get.offAll(PartnerHome());
       } else {
-        Fluttertoast.showToast(msg: "User doesn't exist");
+        Fluttertoast.showToast(msg: loginResult['message']);
       }
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -167,8 +180,12 @@ class _PartnerLoginPageState extends State<PartnerLoginPage> {
                               padding: EdgeInsets.symmetric(
                                   vertical: 4.0, horizontal: 50.0),
                             ),
-                            child:
-                                Text('Login', style: TextStyle(fontSize: 18)),
+                            child: isLoading
+                                ? SizedBox(
+                                    height: 25,
+                                    width: 25,
+                                    child: CircularProgressIndicator())
+                                : Text('Login', style: TextStyle(fontSize: 18)),
                           ),
                           SizedBox(height: 16.0),
                         ],

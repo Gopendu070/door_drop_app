@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
-class EmailVerificationPage extends StatefulWidget {
-  const EmailVerificationPage({
+class PartnerEmailVerificationPage extends StatefulWidget {
+  const PartnerEmailVerificationPage({
     super.key,
     required this.email,
     required this.password,
@@ -19,30 +19,32 @@ class EmailVerificationPage extends StatefulWidget {
   final String phone;
 
   @override
-  State<EmailVerificationPage> createState() => _EmailVerificationPageState();
+  State<PartnerEmailVerificationPage> createState() =>
+      _PartnerEmailVerificationPageState();
 }
 
-class _EmailVerificationPageState extends State<EmailVerificationPage> {
+class _PartnerEmailVerificationPageState
+    extends State<PartnerEmailVerificationPage> {
+  var isLoading = false;
   var _otpController = TextEditingController();
   void verifyEmail(String otp) async {
-    var otpResult = await apiValues.verfyUserByEmail(widget.email, otp);
+    setState(() {
+      isLoading = true;
+    });
+    var otpResult =
+        await apiValues.verfyDeliveryBoyEmailByOTP(widget.email, otp);
     print(otpResult);
     if (otpResult['success']) {
       print(otpResult);
       //todo
-      signUp();
+      Fluttertoast.showToast(msg: "Email verified successfully");
+      Get.offAll(UserLoginPage());
     } else {
       Fluttertoast.showToast(msg: otpResult['message']);
     }
-  }
-
-  void signUp() async {
-    var signUpResult = await apiValues.userSignUp(
-        widget.name, widget.email, widget.password, widget.phone);
-    print(signUpResult);
-
-    Fluttertoast.showToast(msg: "Email verified successfully");
-    Get.offAll(UserLoginPage());
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -109,8 +111,13 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
                       } else
                         verifyEmail(otp);
                     },
-                    child: Text("Verify OTP")),
-                SizedBox(height: 30)
+                    child: isLoading
+                        ? SizedBox(
+                            height: 30,
+                            width: 100,
+                            child: CircularProgressIndicator())
+                        : Text("Verify OTP")),
+                // SizedBox(height: 30)
               ],
             ),
           ),
