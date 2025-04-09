@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:door_drop/app_style/AppStyle.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 // import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -102,6 +103,7 @@ class _QrCodePageState extends State<QrCodePage> {
                 print(imageQr.toString());
                 await saveToExternalStorage(imageQr);
                 // await _saveQRCodeToGallery(imageQr);
+                Get.back();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(252, 159, 66, 176),

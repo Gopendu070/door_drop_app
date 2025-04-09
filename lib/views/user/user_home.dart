@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:door_drop/app_style/AppStyle.dart';
+import 'package:door_drop/controllers/order_controller.dart';
 import 'package:door_drop/other/helper.dart';
 import 'package:door_drop/services/apiValues.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
@@ -16,6 +17,7 @@ import 'package:door_drop/views/user/user_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:lottie/lottie.dart';
 
 class UserHome extends StatefulWidget {
@@ -26,6 +28,21 @@ class UserHome extends StatefulWidget {
 }
 
 class _UserHomeState extends State<UserHome> {
+  var orderController = Get.put(OrderController());
+  void getOrderHistoryList() async {
+    var userInfoResult = await apiValues.getUserInfo();
+    print(userInfoResult['user']);
+    List<dynamic> list = userInfoResult['user']['orderHistory'];
+    orderController.updateOrderHistoryList(list);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getOrderHistoryList();
+  }
+
   void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -45,22 +62,23 @@ class _UserHomeState extends State<UserHome> {
             TextButton(
               onPressed: () {
                 // Perform logout action
-                var partnerEmail = SharedPrefHelper.getPartnerEmail();
-                var partnerPass = SharedPrefHelper.getPartnerPassword();
-                var partnerName = SharedPrefHelper.getPartnerName();
-                var partnerPhone = SharedPrefHelper.getPartnerPhone();
-                var address = SharedPrefHelper.getAddress();
-                var boxId = SharedPrefHelper.getBoxId();
-                Navigator.of(context).pop();
-                SharedPrefHelper.clearPref();
-                //set the partner's shared pref
-                SharedPrefHelper.setPartnerEmail(partnerEmail);
-                SharedPrefHelper.setPartnerPassword(partnerPass);
-                SharedPrefHelper.setPartnerName(partnerName);
-                SharedPrefHelper.setPartnerPhone(partnerPhone);
-                //set user address and boxId
-                SharedPrefHelper.setAddress(address);
-                SharedPrefHelper.setBoxId(boxId);
+                // var partnerEmail = SharedPrefHelper.getPartnerEmail();
+                // var partnerPass = SharedPrefHelper.getPartnerPassword();
+                // var partnerName = SharedPrefHelper.getPartnerName();
+                // var partnerPhone = SharedPrefHelper.getPartnerPhone();
+                // var address = SharedPrefHelper.getAddress();
+                // var boxId = SharedPrefHelper.getBoxId();
+                // Navigator.of(context).pop();
+                // SharedPrefHelper.clearPref();
+                // //set the partner's shared pref
+                // SharedPrefHelper.setPartnerEmail(partnerEmail);
+                // SharedPrefHelper.setPartnerPassword(partnerPass);
+                // SharedPrefHelper.setPartnerName(partnerName);
+                // SharedPrefHelper.setPartnerPhone(partnerPhone);
+                // //set user address and boxId
+                // SharedPrefHelper.setAddress(address);
+                // SharedPrefHelper.setBoxId(boxId);
+
                 Timer(Duration(seconds: 1), () {
                   Get.offAll(AppLandingPage());
                   print('User logged out');
@@ -213,6 +231,7 @@ class _UserHomeState extends State<UserHome> {
             flexibleSpace: GestureDetector(
               onTap: () async {
                 if (SharedPrefHelper.getBoxId().isNotEmpty) {
+                  print(orderController.orderHistoryList.length);
                   var boxLockResult = await apiValues.toggleBoxLock();
                   if (boxLockResult['success']) {
                     setState(() {
@@ -270,77 +289,91 @@ class _UserHomeState extends State<UserHome> {
               ),
             ),
           ),
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
+          Obx(() {
+            return SliverList.builder(
+              itemBuilder: (context, index) {
                 if (index == 0) {
-                  return Container(
-                    height: 120,
-                    color: Colors.black87,
-                    child: Row(
-                      children: [
-                        QrCardWidget(
-                          icon: Icons.qr_code_scanner,
-                          label: "Scan QR",
-                          func: () {
-                            Get.to(QrScannerScreen());
-                          },
-                        ),
-                        QrCardWidget(
-                          icon: Icons.qr_code,
-                          label: "Generate QR",
-                          func: () {
-                            if (SharedPrefHelper.getBoxId().isNotEmpty)
-                              Get.to(GenerateQRFormPage());
-                            else
-                              Get.snackbar("You don't have a Smart Box yet",
-                                  "Please contact our team.",
-                                  colorText: Colors.white,
-                                  backgroundColor:
-                                      const Color.fromARGB(206, 255, 82, 82));
-                          },
-                        ),
-                      ],
-                    ),
-                  );
+                  return (orderController.orderHistoryList.isEmpty)
+                      ? Column(
+                          children: [
+                            ScanOptionsWidget(),
+                            SizedBox(height: 80),
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "You haven’t placed any orders yet",
+                              style: Appstyle.boldText
+                                  .copyWith(color: Colors.white),
+                            ),
+                          ],
+                        )
+                      : ScanOptionsWidget(); // Scan QR & Generate QR
                 } else {
-                  var details = HelperClass.deliveryList[index - 1];
-                  return Stack(children: [
-                    Container(
+                  var reversedIndex =
+                      orderController.orderHistoryList.length - index;
+                  var details = orderController.orderHistoryList[reversedIndex];
+
+                  return Stack(
+                    children: [
+                      Container(
                         margin: EdgeInsets.all(8),
                         padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            gradient: LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  const Color.fromARGB(45, 194, 192, 192),
-                                  const Color.fromARGB(226, 0, 0, 0),
-                                  // const Color.fromARGB(183, 0, 0, 0),
-                                  // const Color.fromARGB(231, 0, 0, 0),
-                                ])),
+                          borderRadius: BorderRadius.circular(10),
+                          //todo
+                          // border: reversedIndex ==
+                          //         orderController.orderHistoryList.length - 1
+                          //     ? Border.all(
+                          //         color: Colors.amberAccent, width: 1.7)
+                          //     : Border(),
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              const Color.fromARGB(45, 194, 192, 192),
+                              const Color.fromARGB(226, 0, 0, 0),
+                            ],
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Row(
                               children: [
                                 Text("Order ID: ",
+                                    style: Appstyle.whiteText.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15)),
+                                Text(
+                                  details['orderId'].toString(),
+                                  style: Appstyle.whiteText.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text("Quantity: ",
                                     style: Appstyle.whiteText
                                         .copyWith(fontWeight: FontWeight.bold)),
                                 Text(
-                                  details['orderId'].toString(),
+                                  details['quantity'].toString(),
                                   style: Appstyle.whiteText,
                                 ),
                               ],
                             ),
                             Row(
                               children: [
-                                Text("Delivery: ",
+                                Text("Amount: ",
                                     style: Appstyle.whiteText
                                         .copyWith(fontWeight: FontWeight.bold)),
                                 Text(
-                                  details['delivery'].toString(),
+                                  "₹" + details['totalAmount'].toString(),
                                   style: Appstyle.whiteText,
                                 ),
                               ],
@@ -348,32 +381,43 @@ class _UserHomeState extends State<UserHome> {
                             Text(
                               details['status'].toString(),
                               style: Appstyle.whiteText.copyWith(
-                                  color:
-                                      statusColor(details['status'].toString()),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13),
+                                color:
+                                    statusColor(details['status'].toString()),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
                             ),
                           ],
-                        )),
-                    Positioned(
+                        ),
+                      ),
+                      Positioned(
                         right: 5,
                         top: 5,
                         child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                HelperClass.deliveryList.removeAt(index - 1);
-                              });
-                            },
-                            icon: Icon(
-                              Icons.delete,
-                              color: const Color.fromARGB(221, 255, 255, 255),
-                            )))
-                  ]);
+                          onPressed: () async {
+                            var deleteOrderResult = await apiValues
+                                .deleteOrderByOrderId(details['orderId']);
+
+                            getOrderHistoryList();
+                            if (deleteOrderResult['success']) {
+                              Fluttertoast.showToast(
+                                  msg: deleteOrderResult['message'],
+                                  backgroundColor: Colors.green);
+                            }
+                          },
+                          icon: Icon(
+                            Icons.delete,
+                            color: const Color.fromARGB(221, 255, 255, 255),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
                 }
               },
-              childCount: HelperClass.deliveryList.length + 1,
-            ),
-          ),
+              itemCount: orderController.orderHistoryList.length + 1,
+            );
+          })
         ],
       ),
     );
@@ -386,6 +430,44 @@ class _UserHomeState extends State<UserHome> {
       return Colors.orangeAccent;
     else
       return Colors.redAccent;
+  }
+}
+
+class ScanOptionsWidget extends StatelessWidget {
+  const ScanOptionsWidget({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 120,
+      color: Colors.black87,
+      child: Row(
+        children: [
+          QrCardWidget(
+            icon: Icons.qr_code_scanner,
+            label: "Scan QR",
+            func: () {
+              Get.to(QrScannerScreen());
+            },
+          ),
+          QrCardWidget(
+            icon: Icons.qr_code,
+            label: "Generate QR",
+            func: () {
+              if (SharedPrefHelper.getBoxId().isNotEmpty)
+                Get.to(GenerateQRFormPage());
+              else
+                Get.snackbar("You don't have a Smart Box yet",
+                    "Please contact our team.",
+                    colorText: Colors.white,
+                    backgroundColor: const Color.fromARGB(206, 255, 82, 82));
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
 

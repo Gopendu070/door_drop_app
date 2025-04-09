@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:door_drop/app_style/AppStyle.dart';
+import 'package:door_drop/controllers/order_controller.dart';
+import 'package:door_drop/services/apiValues.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
 import 'package:door_drop/views/user/qr_code_page.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,8 @@ class _GenerateQRFormPageState extends State<GenerateQRFormPage> {
   final TextEditingController orderIdController = TextEditingController();
   int qty = 1;
   final TextEditingController totalAmountController = TextEditingController();
+  var orderController = Get.put(OrderController());
+  var isLoading = false;
   String formatedData() {
     var name = nameController.text;
     var email = emailController.text;
@@ -55,6 +59,13 @@ class _GenerateQRFormPageState extends State<GenerateQRFormPage> {
 
     // Return the extracted string if found, otherwise return an empty string
     return match != null ? match.group(1) ?? '' : '';
+  }
+
+  void getOrderHistoryList() async {
+    var userInfoResult = await apiValues.getUserInfo();
+    print(userInfoResult['user']);
+    List<dynamic> list = userInfoResult['user']['orderHistory'];
+    orderController.updateOrderHistoryList(list);
   }
 
   @override
@@ -179,18 +190,39 @@ class _GenerateQRFormPageState extends State<GenerateQRFormPage> {
                   // Generate Button
                   Center(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           if (SharedPrefHelper.getAddress() == "") {
                             Fluttertoast.showToast(
-                                msg: "Please set your address first");
+                                msg: "Please add  a address first");
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text("QR Code Generated!"),
-                              backgroundColor: Colors.green,
-                            ));
-                            Timer(Duration(seconds: 1), () {
-                              Get.to(QrCodePage(qrData: formatedData()));
+                            setState(() {
+                              isLoading = !isLoading;
+                            });
+                            var addOrderRes = await apiValues.addOrder(
+                                orderIdController.text,
+                                qty.toString(),
+                                totalAmountController.text);
+                            if (addOrderRes['success']) {
+                              getOrderHistoryList();
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text("QR Code Generated"),
+                                backgroundColor: Colors.green,
+                              ));
+
+                              Timer(Duration(seconds: 1), () {
+                                Get.to(QrCodePage(qrData: formatedData()));
+                              });
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text("Something went wrong"),
+                                backgroundColor: Colors.red,
+                              ));
+                            }
+                            setState(() {
+                              isLoading = !isLoading;
                             });
                           }
                         }
@@ -204,10 +236,20 @@ class _GenerateQRFormPageState extends State<GenerateQRFormPage> {
                         padding:
                             EdgeInsets.symmetric(vertical: 12, horizontal: 32),
                       ),
-                      child: Text(
-                        "Generate",
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
+                      child: isLoading
+                          ? Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 15.0),
+                              child: SizedBox(
+                                  height: 25,
+                                  width: 25,
+                                  child: CircularProgressIndicator()),
+                            )
+                          : Text(
+                              "Generate",
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.white),
+                            ),
                     ),
                   ),
                   SizedBox(height: 16),

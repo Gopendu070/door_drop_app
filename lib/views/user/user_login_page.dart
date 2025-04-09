@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 import '../../app_style/AppStyle.dart';
+import '../../controllers/order_controller.dart';
 
 class UserLoginPage extends StatefulWidget {
   @override
@@ -17,6 +18,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final OrderController orderController = Get.put(OrderController());
   bool isLoading = false;
   void _login() async {
     if (_formKey.currentState!.validate()) {
@@ -40,7 +42,10 @@ class _UserLoginPageState extends State<UserLoginPage> {
         SharedPrefHelper.setId(loginResult['user']['_id']);
         SharedPrefHelper.setBoxIsLockedd(loginResult['user']['boxIsLocked']);
         SharedPrefHelper.setBoxId(loginResult['user']['boxId'] ?? "");
-        print("boxId: ${SharedPrefHelper.getBoxId()}");
+        print(loginResult['user']['orderHistory']);
+        orderController
+            .updateOrderHistoryList(loginResult['user']['orderHistory']);
+        print(orderController.orderHistoryList.length);
         setState(() {
           isLoading = false;
         });

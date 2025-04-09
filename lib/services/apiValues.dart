@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:door_drop/services/dio_client.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
+import 'package:door_drop/views/partner/partner_home.dart';
 
 class Apivalues {
   ////////////////////////////////////  USER ///////////////////////////////////////////////////
@@ -75,6 +76,17 @@ class Apivalues {
     } catch (e) {
       print("Verify OTP Error: $e");
       return null;
+    }
+  }
+
+  Future<dynamic> getUserInfo() async {
+    try {
+      final dio = await DioClient.getInstance();
+      final response = await dio.get('/user/getuserinfo',
+          data: {"email": SharedPrefHelper.getEmail()});
+      return response.data;
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -179,6 +191,25 @@ class Apivalues {
       final dio = await DioClient.getInstance();
       final response = await dio.post('/order/deleteorder',
           data: {"orderId": orderId},
+          options: Options(headers: {
+            "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"
+          }));
+      return response.data;
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<dynamic> addOrder(
+      String orderId, String quantity, String totalAmount) async {
+    try {
+      final dio = await DioClient.getInstance();
+      final response = await dio.post('/order/addorder',
+          data: {
+            "orderId": orderId,
+            "quantity": quantity,
+            "totalAmount": totalAmount
+          },
           options: Options(headers: {
             "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"
           }));

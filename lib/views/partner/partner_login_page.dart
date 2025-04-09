@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:door_drop/app_style/AppStyle.dart';
+import 'package:door_drop/controllers/order_controller.dart';
 import 'package:door_drop/services/apiValues.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
 import 'package:door_drop/views/partner/partner_home.dart';
@@ -38,7 +39,6 @@ class _PartnerLoginPageState extends State<PartnerLoginPage> {
         SharedPrefHelper.setPartnerPhone(
             loginResult['user']['phoneNumber'] ?? "");
         SharedPrefHelper.setPartnerEmail(loginResult['user']['email']);
-
         SharedPrefHelper.setPartnerId(loginResult['user']['_id']);
 
         Get.offAll(PartnerHome());
