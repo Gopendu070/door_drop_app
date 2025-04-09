@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:door_drop/app_style/AppStyle.dart';
 import 'package:door_drop/other/helper.dart';
+import 'package:door_drop/services/apiValues.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
 import 'package:door_drop/views/about_us_page.dart';
 import 'package:door_drop/views/app_landing_page.dart';
@@ -13,6 +14,7 @@ import 'package:door_drop/views/user/qr_scanner_screen.dart';
 import 'package:door_drop/views/user/set_box_password.dart';
 import 'package:door_drop/views/user/user_login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
@@ -75,7 +77,7 @@ class _UserHomeState extends State<UserHome> {
     );
   }
 
-  bool isBoxLocked = true;
+  bool isBoxLocked = SharedPrefHelper.getBoxIsLocked();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,7 +126,14 @@ class _UserHomeState extends State<UserHome> {
             DrawerClipWidget(
               label: "Set Box Password",
               func: () {
-                Get.to(SetBoxPasswordPage());
+                if (SharedPrefHelper.getBoxId().isNotEmpty)
+                  Get.to(SetBoxPasswordPage());
+                else {
+                  Get.snackbar("You don't have a Smart Box yet",
+                      "Please contact our team.",
+                      colorText: Colors.white,
+                      backgroundColor: const Color.fromARGB(206, 255, 82, 82));
+                }
               },
             ),
             SizedBox(
@@ -202,15 +211,25 @@ class _UserHomeState extends State<UserHome> {
             pinned: true,
             snap: false,
             flexibleSpace: GestureDetector(
-              onTap: () {
-                print(SharedPrefHelper.getEmail());
-                print(SharedPrefHelper.getUserToken());
-                print(SharedPrefHelper.getAddress());
-                print(SharedPrefHelper.getPhone());
-                print(SharedPrefHelper.getName());
-                setState(() {
-                  isBoxLocked = !isBoxLocked;
-                });
+              onTap: () async {
+                if (SharedPrefHelper.getBoxId().isNotEmpty) {
+                  var boxLockResult = await apiValues.toggleBoxLock();
+                  if (boxLockResult['success']) {
+                    setState(() {
+                      isBoxLocked = !isBoxLocked;
+                      SharedPrefHelper.setBoxIsLockedd(isBoxLocked);
+                    });
+                    Fluttertoast.showToast(msg: boxLockResult['message']);
+                  } else {
+                    Fluttertoast.showToast(
+                        msg: "Some error occured", backgroundColor: Colors.red);
+                  }
+                } else {
+                  Get.snackbar("You don't have a Drop Box yet",
+                      "Please contact our team.",
+                      colorText: Colors.white,
+                      backgroundColor: const Color.fromARGB(206, 255, 82, 82));
+                }
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -271,7 +290,14 @@ class _UserHomeState extends State<UserHome> {
                           icon: Icons.qr_code,
                           label: "Generate QR",
                           func: () {
-                            Get.to(GenerateQRFormPage());
+                            if (SharedPrefHelper.getBoxId().isNotEmpty)
+                              Get.to(GenerateQRFormPage());
+                            else
+                              Get.snackbar("You don't have a Smart Box yet",
+                                  "Please contact our team.",
+                                  colorText: Colors.white,
+                                  backgroundColor:
+                                      const Color.fromARGB(206, 255, 82, 82));
                           },
                         ),
                       ],

@@ -112,10 +112,14 @@ class _PartnerEmailVerificationPageState
                         verifyEmail(otp);
                     },
                     child: isLoading
-                        ? SizedBox(
-                            height: 30,
-                            width: 100,
-                            child: CircularProgressIndicator())
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 15),
+                            child: SizedBox(
+                                height: 25,
+                                width: 25,
+                                child: CircularProgressIndicator()),
+                          )
                         : Text("Verify OTP")),
                 // SizedBox(height: 30)
               ],

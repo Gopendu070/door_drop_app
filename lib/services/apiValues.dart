@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:door_drop/services/dio_client.dart';
+import 'package:door_drop/services/sharedPrefHelper.dart';
 
 class Apivalues {
   ////////////////////////////////////  USER ///////////////////////////////////////////////////
@@ -16,6 +17,25 @@ class Apivalues {
       return response.data;
     } catch (e) {
       print("Login Error: $e");
+      return null;
+    }
+  }
+
+  Future<dynamic> updateAddress(String address) async {
+    try {
+      print("1");
+      final dio = await DioClient.getInstance();
+      print("2");
+      final response = await dio.post('/user/updateaddress',
+          data: {"address": address},
+          options: Options(headers: {
+            "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"
+          }));
+      print("3");
+      print(response.statusCode);
+      return response.data;
+    } catch (e) {
+      print(" $e");
       return null;
     }
   }
@@ -106,8 +126,6 @@ class Apivalues {
           "otp": otp,
         },
       );
-      print("Status code: ${response.statusCode}");
-      print(response.data);
       return response.data;
     } catch (e) {
       print("Verify OTP Error: $e");
@@ -115,24 +133,58 @@ class Apivalues {
     }
   }
 
-  Future<dynamic> setBoxPassword(String boxId, String password) async {
+////////////////////////////////////////// BOX ///////////////////////////////////////////////////
+
+  Future<dynamic> setBoxPassword(
+    String password,
+    String boxPin,
+  ) async {
     try {
       final dio = await DioClient.getInstance();
-      // final customDio = dio.copyWith(
-      //   baseUrl: "https://doordropbackend.onrender.com/api",
-      // );
+      print(SharedPrefHelper.getUserToken());
       final response = await dio.post(
-        //recheck url
         '/box/setpassword',
         data: {
-          "boxId": boxId,
+          "email": SharedPrefHelper.getEmail(),
           "password": password,
+          "boxPin": boxPin,
         },
+        options: Options(headers: {
+          "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"
+        }),
       );
       return response.data;
     } catch (e) {
       print("Set Box Password Error: $e");
       return null;
+    }
+  }
+
+  Future<dynamic> toggleBoxLock() async {
+    try {
+      final dio = await DioClient.getInstance();
+      final response = await dio.post('/box/openbox',
+          options: Options(headers: {
+            "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"
+          }));
+      return response.data;
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+////////////////////////////////////////// ORDER ///////////////////////////////////////////////////
+  Future<dynamic> deleteOrderByOrderId(String orderId) async {
+    try {
+      final dio = await DioClient.getInstance();
+      final response = await dio.post('/order/deleteorder',
+          data: {"orderId": orderId},
+          options: Options(headers: {
+            "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"
+          }));
+      return response.data;
+    } catch (e) {
+      print("Error: $e");
     }
   }
 }

@@ -110,10 +110,14 @@ class _UserEmailVerificationPageState extends State<UserEmailVerificationPage> {
                         verifyEmail(otp);
                     },
                     child: isLoading
-                        ? SizedBox(
-                            height: 30,
-                            width: 100,
-                            child: CircularProgressIndicator())
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 12),
+                            child: SizedBox(
+                                height: 25,
+                                width: 25,
+                                child: CircularProgressIndicator()),
+                          )
                         : Text("Verify OTP")),
                 // SizedBox(height: 30)
               ],

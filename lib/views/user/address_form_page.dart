@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:door_drop/app_style/AppStyle.dart';
+import 'package:door_drop/services/apiValues.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -133,17 +134,28 @@ class _AddressFormPageState extends State<AddressFormPage> {
                     // Save Button
                     Center(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             // Action if all fields are valid
 
                             print(formatedAddress());
-                            SharedPrefHelper.setAddress(formatedAddress());
-                            Fluttertoast.showToast(
-                                msg: "Address saved successfully");
-                            Timer(Duration(seconds: 2), () {
-                              Get.back();
-                            });
+                            var addressUpdateRes = await apiValues
+                                .updateAddress(formatedAddress());
+                            // SharedPrefHelper.setAddress(formatedAddress());
+                            if (addressUpdateRes['success']) {
+                              SharedPrefHelper.setAddress(
+                                  addressUpdateRes['address']);
+                              Fluttertoast.showToast(
+                                  msg: addressUpdateRes['message'],
+                                  backgroundColor: Colors.green);
+                              Timer(Duration(seconds: 1), () {
+                                Get.back();
+                              });
+                            } else {
+                              Fluttertoast.showToast(
+                                  msg: addressUpdateRes['message'],
+                                  backgroundColor: Colors.red);
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(

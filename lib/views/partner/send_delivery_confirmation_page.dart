@@ -6,7 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 class SendDeliveryConfirmationPage extends StatelessWidget {
   final String data;
   const SendDeliveryConfirmationPage({super.key, required this.data});
-  String findEmail(String input) {
+  String findUserEmail(String input) {
     // Define a regular expression pattern for matching email IDs
     final RegExp emailRegex = RegExp(
       r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
@@ -101,9 +101,9 @@ class SendDeliveryConfirmationPage extends StatelessWidget {
                   var boxId = extractBoxId(data);
                   var partnerEmail = SharedPrefHelper.getPartnerEmail();
 
-                  var recipient = findEmail(data);
+                  var recipient = findUserEmail(data);
                   var confirmationLink =
-                      'https://strong-salamander-848583.netlify.app/pin/$boxId/$recipient/$partnerEmail';
+                      'https://doordrop365.netlify.app/pin/$boxId/$recipient/$partnerEmail';
                   var body = data +
                       "\n\nClick the link below to confirm your delivery: \n$confirmationLink";
                   await sendEmail(

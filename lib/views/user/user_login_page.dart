@@ -35,10 +35,12 @@ class _UserLoginPageState extends State<UserLoginPage> {
         SharedPrefHelper.setPhone(loginResult['user']['phoneNumber'] ?? "");
         SharedPrefHelper.setEmail(loginResult['user']['email']);
         //Todo
-        // SharedPrefHelper.setAddress(loginResult['user']['address'] ?? "");
+        SharedPrefHelper.setAddress(loginResult['user']['address'] ?? "");
 
         SharedPrefHelper.setId(loginResult['user']['_id']);
+        SharedPrefHelper.setBoxIsLockedd(loginResult['user']['boxIsLocked']);
         SharedPrefHelper.setBoxId(loginResult['user']['boxId'] ?? "");
+        print("boxId: ${SharedPrefHelper.getBoxId()}");
         setState(() {
           isLoading = false;
         });

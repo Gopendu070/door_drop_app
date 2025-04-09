@@ -55,6 +55,14 @@ class SharedPrefHelper {
     _prefs.setString("boxId", id);
   }
 
+  static bool getBoxIsLocked() {
+    return _prefs.getBool("boxIsLocked") ?? true;
+  }
+
+  static void setBoxIsLockedd(bool boxIsLocked) {
+    _prefs.setBool("boxIsLocked", boxIsLocked);
+  }
+
   static String getPhone() {
     return _prefs.getString("phone") ?? "";
   }
