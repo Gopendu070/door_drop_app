@@ -1,5 +1,6 @@
 import 'package:door_drop/services/apiValues.dart';
 import 'package:door_drop/services/sharedPrefHelper.dart';
+import 'package:door_drop/views/partner/partner_login_page.dart';
 import 'package:door_drop/views/user/user_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -38,7 +39,7 @@ class _PartnerEmailVerificationPageState
       print(otpResult);
       //todo
       Fluttertoast.showToast(msg: "Email verified successfully");
-      Get.offAll(UserLoginPage());
+      Get.offAll(PartnerLoginPage());
     } else {
       Fluttertoast.showToast(msg: otpResult['message']);
     }

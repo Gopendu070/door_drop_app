@@ -20,12 +20,11 @@ class PartnerHome extends StatefulWidget {
   State<PartnerHome> createState() => _PartnerHomeState();
 }
 
-final name = SharedPrefHelper.getPartnerName();
-final email = SharedPrefHelper.getPartnerEmail();
-final phone = SharedPrefHelper.getPartnerPhone();
-final id = SharedPrefHelper.getPartnerId();
-
 class _PartnerHomeState extends State<PartnerHome> {
+  final name = SharedPrefHelper.getPartnerName();
+  final email = SharedPrefHelper.getPartnerEmail();
+  final phone = SharedPrefHelper.getPartnerPhone();
+  final id = SharedPrefHelper.getPartnerId();
   void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
