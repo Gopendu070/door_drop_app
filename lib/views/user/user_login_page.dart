@@ -55,7 +55,8 @@ class _UserLoginPageState extends State<UserLoginPage> {
         setState(() {
           isLoading = false;
         });
-        Fluttertoast.showToast(msg: loginResult['message']);
+        Fluttertoast.showToast(
+            msg: loginResult['message'], backgroundColor: Colors.redAccent);
       }
     }
   }

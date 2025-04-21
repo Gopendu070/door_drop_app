@@ -15,10 +15,33 @@ class Apivalues {
           "password": passWord,
         },
       );
-      return response.data;
+
+      // Success case
+      if (response.statusCode == 200) {
+        print("Login successful: ${response.data}");
+        return response.data;
+      } else {
+        // Non-200 but still return the response
+        print("Non-200 Response: ${response.statusCode} => ${response.data}");
+        return response.data;
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response?.statusCode;
+        final errorData = e.response?.data;
+        print("=====================================");
+        print("Handled Error $statusCode: $errorData");
+        return errorData; // ✅ Returning response even if it's an error
+      } else {
+        print("Network or unknown error: ${e.message}");
+        return {
+          'message': 'Network error',
+          'success': false
+        }; // Optional fallback
+      }
     } catch (e) {
-      print("Login Error: $e");
-      return null;
+      print("Unexpected error: $e");
+      return {'message': 'Unexpected error', 'success': false};
     }
   }
 
@@ -190,7 +213,7 @@ class Apivalues {
     try {
       final dio = await DioClient.getInstance();
       final response = await dio.post('/order/deleteorder',
-          data: {"orderId": orderId},
+          data: {"orderId": orderId, "boxId": SharedPrefHelper.getBoxId()},
           options: Options(headers: {
             "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"
           }));
@@ -209,6 +232,24 @@ class Apivalues {
             "orderId": orderId,
             "quantity": quantity,
             "totalAmount": totalAmount
+          },
+          options: Options(headers: {
+            "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"
+          }));
+      return response.data;
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<dynamic> updateOrder(String orderId) async {
+    try {
+      final dio = await DioClient.getInstance();
+      final response = await dio.post('/order/updateOrder',
+          data: {
+            "boxId": SharedPrefHelper.getBoxId(),
+            "orderId": orderId,
+            "status": "Completed"
           },
           options: Options(headers: {
             "Authorization": "Bearer ${SharedPrefHelper.getUserToken()}"

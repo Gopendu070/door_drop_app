@@ -3,11 +3,16 @@ import 'package:door_drop/views/partner/partner_home.dart';
 import 'package:door_drop/views/user/user_home.dart';
 import 'package:door_drop/views/user/user_login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'services/sharedPrefHelper.dart';
 
 void main() async {
+  // Force Portrait Mode
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp, // Normal Portrait
+  ]);
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPrefHelper.initPref();
   runApp(const MyApp());

@@ -337,6 +337,18 @@ class _UserHomeState extends State<UserHome> {
                                 style: Appstyle.boldText
                                     .copyWith(color: Colors.white),
                               ),
+                              SizedBox(height: 8),
+                              Text(
+                                "OR",
+                                style: Appstyle.boldText
+                                    .copyWith(color: Colors.white),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "Poor internet connection",
+                                style: Appstyle.boldText
+                                    .copyWith(color: Colors.white),
+                              ),
                             ],
                           )
                         : ScanOptionsWidget(); // Scan QR & Generate QR
@@ -454,7 +466,7 @@ class _UserHomeState extends State<UserHome> {
   }
 
   Color statusColor(String sts) {
-    if (sts == 'Delivered')
+    if (sts == 'Completed')
       return Colors.greenAccent;
     else if (sts == 'Pending')
       return Colors.orangeAccent;
