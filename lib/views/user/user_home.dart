@@ -81,23 +81,6 @@ class _UserHomeState extends State<UserHome> {
             ),
             TextButton(
               onPressed: () {
-                // Perform logout action
-                // var partnerEmail = SharedPrefHelper.getPartnerEmail();
-                // var partnerPass = SharedPrefHelper.getPartnerPassword();
-                // var partnerName = SharedPrefHelper.getPartnerName();
-                // var partnerPhone = SharedPrefHelper.getPartnerPhone();
-                // var address = SharedPrefHelper.getAddress();
-                // var boxId = SharedPrefHelper.getBoxId();
-                // Navigator.of(context).pop();
-                // SharedPrefHelper.clearPref();
-                // //set the partner's shared pref
-                // SharedPrefHelper.setPartnerEmail(partnerEmail);
-                // SharedPrefHelper.setPartnerPassword(partnerPass);
-                // SharedPrefHelper.setPartnerName(partnerName);
-                // SharedPrefHelper.setPartnerPhone(partnerPhone);
-                // //set user address and boxId
-                // SharedPrefHelper.setAddress(address);
-                // SharedPrefHelper.setBoxId(boxId);
                 SharedPrefHelper.setIsLoggedInFlase();
                 Timer(Duration(seconds: 1), () {
                   Get.offAll(AppLandingPage());
@@ -106,6 +89,45 @@ class _UserHomeState extends State<UserHome> {
               },
               child: Text(
                 'Logout',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteOrderConfirmationDialog(BuildContext context, String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Text(
+            'Do you want to delete Order:' + id + '?',
+            style: Appstyle.semiBoldText,
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                var deleteOrderResult =
+                    await apiValues.deleteOrderByOrderId(id);
+
+                getOrderHistoryList();
+                if (deleteOrderResult['success']) {
+                  Fluttertoast.showToast(
+                      msg: deleteOrderResult['message'],
+                      backgroundColor: Colors.green);
+                }
+              },
+              child: Text(
+                'Delete',
                 style: TextStyle(color: Colors.redAccent),
               ),
             ),
@@ -435,16 +457,9 @@ class _UserHomeState extends State<UserHome> {
                           right: 5,
                           top: 5,
                           child: IconButton(
-                            onPressed: () async {
-                              var deleteOrderResult = await apiValues
-                                  .deleteOrderByOrderId(details['orderId']);
-
-                              getOrderHistoryList();
-                              if (deleteOrderResult['success']) {
-                                Fluttertoast.showToast(
-                                    msg: deleteOrderResult['message'],
-                                    backgroundColor: Colors.green);
-                              }
+                            onPressed: () {
+                              _showDeleteOrderConfirmationDialog(
+                                  context, details['orderId']);
                             },
                             icon: Icon(
                               Icons.delete,

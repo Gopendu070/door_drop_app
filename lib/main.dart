@@ -10,11 +10,12 @@ import 'services/sharedPrefHelper.dart';
 
 void main() async {
   // Force Portrait Mode
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefHelper.initPref();
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp, // Normal Portrait
   ]);
-  WidgetsFlutterBinding.ensureInitialized();
-  await SharedPrefHelper.initPref();
   runApp(const MyApp());
 }
 
