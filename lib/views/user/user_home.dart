@@ -124,7 +124,12 @@ class _UserHomeState extends State<UserHome> {
                   Fluttertoast.showToast(
                       msg: deleteOrderResult['message'],
                       backgroundColor: Colors.green);
+                } else {
+                  Fluttertoast.showToast(
+                      msg: deleteOrderResult['message'],
+                      backgroundColor: Colors.redAccent);
                 }
+                Get.back();
               },
               child: Text(
                 'Delete',
