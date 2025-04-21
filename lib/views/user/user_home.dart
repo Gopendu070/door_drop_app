@@ -36,6 +36,26 @@ class _UserHomeState extends State<UserHome> {
     orderController.updateOrderHistoryList(list);
   }
 
+  //refresh
+  Future<void> refreshUserInfoWithAll() async {
+    var userInfoResult = await apiValues.getUserInfo();
+    print(userInfoResult['user']);
+
+    List<dynamic> list = userInfoResult['user']['orderHistory'];
+    orderController.updateOrderHistoryList(list);
+
+    SharedPrefHelper.setName(userInfoResult['user']['name']);
+    SharedPrefHelper.setPhone(userInfoResult['user']['phoneNumber'] ?? "");
+    SharedPrefHelper.setEmail(userInfoResult['user']['email']);
+    //Todo
+    SharedPrefHelper.setAddress(userInfoResult['user']['address'] ?? "");
+
+    SharedPrefHelper.setId(userInfoResult['user']['_id']);
+    SharedPrefHelper.setBoxIsLockedd(userInfoResult['user']['boxIsLocked']);
+    SharedPrefHelper.setBoxId(userInfoResult['user']['boxId'] ?? "");
+    setState(() {});
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -78,7 +98,7 @@ class _UserHomeState extends State<UserHome> {
                 // //set user address and boxId
                 // SharedPrefHelper.setAddress(address);
                 // SharedPrefHelper.setBoxId(boxId);
-
+                SharedPrefHelper.setIsLoggedInFlase();
                 Timer(Duration(seconds: 1), () {
                   Get.offAll(AppLandingPage());
                   print('User logged out');
@@ -175,250 +195,260 @@ class _UserHomeState extends State<UserHome> {
           ],
         ),
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 320.0, // Height when expanded
-            pinned: false, // Keeps the app bar visible when collapsed
-            floating: false, // Prevents app bar from appearing mid-scroll
-            snap: false, // Works with floating, enables snapping behavior
-            flexibleSpace: FlexibleSpaceBar(
-                background: Stack(children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: 350,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                      const Color.fromARGB(255, 90, 88, 88),
-                      const Color.fromARGB(225, 0, 0, 0),
-                      Colors.black
-                    ])),
-                child: Center(
-                  child: Image.asset(
-                    "asset/box.png",
-                    height: 280,
+      body: RefreshIndicator(
+        // displacement: 6,
+        onRefresh: () async {
+          await refreshUserInfoWithAll();
+        },
+        color: const Color.fromARGB(255, 232, 177, 12),
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 320.0, // Height when expanded
+              pinned: false, // Keeps the app bar visible when collapsed
+              floating: false, // Prevents app bar from appearing mid-scroll
+              snap: false, // Works with floating, enables snapping behavior
+              flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: 350,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                        const Color.fromARGB(255, 90, 88, 88),
+                        const Color.fromARGB(225, 0, 0, 0),
+                        Colors.black
+                      ])),
+                  child: Center(
+                    child: Image.asset(
+                      "asset/box.png",
+                      height: 280,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 25,
+                  right: 10,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Colors.white30),
+                    child: IconButton(
+                        onPressed: () {
+                          Scaffold.of(context).openEndDrawer();
+                        },
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.amber,
+                        )),
+                  ),
+                )
+              ])),
+            ),
+            SliverAppBar(
+              expandedHeight: 40,
+              // collapsedHeight: 65,
+              toolbarHeight: 45,
+              pinned: true,
+              snap: false,
+              flexibleSpace: GestureDetector(
+                onTap: () async {
+                  if (SharedPrefHelper.getBoxId().isNotEmpty) {
+                    print(orderController.orderHistoryList.length);
+                    var boxLockResult = await apiValues.toggleBoxLock();
+                    if (boxLockResult['success']) {
+                      setState(() {
+                        isBoxLocked = !isBoxLocked;
+                        SharedPrefHelper.setBoxIsLockedd(isBoxLocked);
+                      });
+                      Fluttertoast.showToast(msg: boxLockResult['message']);
+                    } else {
+                      Fluttertoast.showToast(
+                          msg: "Some error occured",
+                          backgroundColor: Colors.red);
+                    }
+                  } else {
+                    Get.snackbar("You don't have a Drop Box yet",
+                        "Please contact our team.",
+                        colorText: Colors.white,
+                        backgroundColor:
+                            const Color.fromARGB(206, 255, 82, 82));
+                  }
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                      gradient: isBoxLocked
+                          ? LinearGradient(
+                              colors: [
+                                  const Color.fromARGB(214, 28, 28, 28),
+                                  Color.fromARGB(170, 87, 231, 162),
+                                  Color.fromARGB(170, 87, 231, 162),
+                                  Color.fromARGB(196, 61, 165, 115),
+                                  Color.fromARGB(235, 28, 28, 28),
+                                ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight)
+                          : LinearGradient(
+                              colors: [
+                                  const Color.fromARGB(214, 28, 28, 28),
+                                  Color.fromARGB(224, 246, 67, 67),
+                                  Color.fromARGB(224, 246, 67, 67),
+                                  Color.fromARGB(224, 246, 67, 67),
+                                  Color.fromARGB(214, 28, 28, 28),
+                                ],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        isBoxLocked ? Icons.lock : Icons.lock_open,
+                        size: 25,
+                      ),
+                      Text(
+                        isBoxLocked ? 'Box Locked' : 'Box Unlocked',
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      )
+                    ],
                   ),
                 ),
               ),
-              Positioned(
-                top: 25,
-                right: 10,
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: Colors.white30),
-                  child: IconButton(
-                      onPressed: () {
-                        Scaffold.of(context).openEndDrawer();
-                      },
-                      icon: Icon(
-                        Icons.more_vert,
-                        color: Colors.amber,
-                      )),
-                ),
-              )
-            ])),
-          ),
-          SliverAppBar(
-            expandedHeight: 40,
-            // collapsedHeight: 65,
-            toolbarHeight: 45,
-            pinned: true,
-            snap: false,
-            flexibleSpace: GestureDetector(
-              onTap: () async {
-                if (SharedPrefHelper.getBoxId().isNotEmpty) {
-                  print(orderController.orderHistoryList.length);
-                  var boxLockResult = await apiValues.toggleBoxLock();
-                  if (boxLockResult['success']) {
-                    setState(() {
-                      isBoxLocked = !isBoxLocked;
-                      SharedPrefHelper.setBoxIsLockedd(isBoxLocked);
-                    });
-                    Fluttertoast.showToast(msg: boxLockResult['message']);
-                  } else {
-                    Fluttertoast.showToast(
-                        msg: "Some error occured", backgroundColor: Colors.red);
-                  }
-                } else {
-                  Get.snackbar("You don't have a Drop Box yet",
-                      "Please contact our team.",
-                      colorText: Colors.white,
-                      backgroundColor: const Color.fromARGB(206, 255, 82, 82));
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                    gradient: isBoxLocked
-                        ? LinearGradient(
-                            colors: [
-                                const Color.fromARGB(214, 28, 28, 28),
-                                Color.fromARGB(170, 87, 231, 162),
-                                Color.fromARGB(170, 87, 231, 162),
-                                Color.fromARGB(196, 61, 165, 115),
-                                Color.fromARGB(235, 28, 28, 28),
-                              ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight)
-                        : LinearGradient(
-                            colors: [
-                                const Color.fromARGB(214, 28, 28, 28),
-                                Color.fromARGB(224, 246, 67, 67),
-                                Color.fromARGB(224, 246, 67, 67),
-                                Color.fromARGB(224, 246, 67, 67),
-                                Color.fromARGB(214, 28, 28, 28),
-                              ],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      isBoxLocked ? Icons.lock : Icons.lock_open,
-                      size: 25,
-                    ),
-                    Text(
-                      isBoxLocked ? 'Box Locked' : 'Box Unlocked',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    )
-                  ],
-                ),
-              ),
             ),
-          ),
-          Obx(() {
-            return SliverList.builder(
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return (orderController.orderHistoryList.isEmpty)
-                      ? Column(
-                          children: [
-                            ScanOptionsWidget(),
-                            SizedBox(height: 80),
-                            Icon(
-                              Icons.error_outline,
-                              color: Colors.white,
-                              size: 40,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              "You haven’t placed any orders yet",
-                              style: Appstyle.boldText
-                                  .copyWith(color: Colors.white),
-                            ),
-                          ],
-                        )
-                      : ScanOptionsWidget(); // Scan QR & Generate QR
-                } else {
-                  var reversedIndex =
-                      orderController.orderHistoryList.length - index;
-                  var details = orderController.orderHistoryList[reversedIndex];
+            Obx(() {
+              return SliverList.builder(
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return (orderController.orderHistoryList.isEmpty)
+                        ? Column(
+                            children: [
+                              ScanOptionsWidget(),
+                              SizedBox(height: 80),
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.white,
+                                size: 40,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                "You haven’t placed any orders yet",
+                                style: Appstyle.boldText
+                                    .copyWith(color: Colors.white),
+                              ),
+                            ],
+                          )
+                        : ScanOptionsWidget(); // Scan QR & Generate QR
+                  } else {
+                    var reversedIndex =
+                        orderController.orderHistoryList.length - index;
+                    var details =
+                        orderController.orderHistoryList[reversedIndex];
 
-                  return Stack(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.all(8),
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          //todo
-                          // border: reversedIndex ==
-                          //         orderController.orderHistoryList.length - 1
-                          //     ? Border.all(
-                          //         color: Colors.amberAccent, width: 1.7)
-                          //     : Border(),
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [
-                              const Color.fromARGB(45, 194, 192, 192),
-                              const Color.fromARGB(226, 0, 0, 0),
+                    return Stack(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.all(8),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            //todo
+                            // border: reversedIndex ==
+                            //         orderController.orderHistoryList.length - 1
+                            //     ? Border.all(
+                            //         color: Colors.amberAccent, width: 1.7)
+                            //     : Border(),
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [
+                                const Color.fromARGB(45, 194, 192, 192),
+                                const Color.fromARGB(226, 0, 0, 0),
+                              ],
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                children: [
+                                  Text("Order ID: ",
+                                      style: Appstyle.whiteText.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15)),
+                                  Text(
+                                    details['orderId'].toString(),
+                                    style: Appstyle.whiteText.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text("Quantity: ",
+                                      style: Appstyle.whiteText.copyWith(
+                                          fontWeight: FontWeight.bold)),
+                                  Text(
+                                    details['quantity'].toString(),
+                                    style: Appstyle.whiteText,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text("Amount: ",
+                                      style: Appstyle.whiteText.copyWith(
+                                          fontWeight: FontWeight.bold)),
+                                  Text(
+                                    "₹" + details['totalAmount'].toString(),
+                                    style: Appstyle.whiteText,
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                details['status'].toString(),
+                                style: Appstyle.whiteText.copyWith(
+                                  color:
+                                      statusColor(details['status'].toString()),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              children: [
-                                Text("Order ID: ",
-                                    style: Appstyle.whiteText.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15)),
-                                Text(
-                                  details['orderId'].toString(),
-                                  style: Appstyle.whiteText.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text("Quantity: ",
-                                    style: Appstyle.whiteText
-                                        .copyWith(fontWeight: FontWeight.bold)),
-                                Text(
-                                  details['quantity'].toString(),
-                                  style: Appstyle.whiteText,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text("Amount: ",
-                                    style: Appstyle.whiteText
-                                        .copyWith(fontWeight: FontWeight.bold)),
-                                Text(
-                                  "₹" + details['totalAmount'].toString(),
-                                  style: Appstyle.whiteText,
-                                ),
-                              ],
-                            ),
-                            Text(
-                              details['status'].toString(),
-                              style: Appstyle.whiteText.copyWith(
-                                color:
-                                    statusColor(details['status'].toString()),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        right: 5,
-                        top: 5,
-                        child: IconButton(
-                          onPressed: () async {
-                            var deleteOrderResult = await apiValues
-                                .deleteOrderByOrderId(details['orderId']);
+                        Positioned(
+                          right: 5,
+                          top: 5,
+                          child: IconButton(
+                            onPressed: () async {
+                              var deleteOrderResult = await apiValues
+                                  .deleteOrderByOrderId(details['orderId']);
 
-                            getOrderHistoryList();
-                            if (deleteOrderResult['success']) {
-                              Fluttertoast.showToast(
-                                  msg: deleteOrderResult['message'],
-                                  backgroundColor: Colors.green);
-                            }
-                          },
-                          icon: Icon(
-                            Icons.delete,
-                            color: const Color.fromARGB(221, 255, 255, 255),
+                              getOrderHistoryList();
+                              if (deleteOrderResult['success']) {
+                                Fluttertoast.showToast(
+                                    msg: deleteOrderResult['message'],
+                                    backgroundColor: Colors.green);
+                              }
+                            },
+                            icon: Icon(
+                              Icons.delete,
+                              color: const Color.fromARGB(221, 255, 255, 255),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                }
-              },
-              itemCount: orderController.orderHistoryList.length + 1,
-            );
-          })
-        ],
+                      ],
+                    );
+                  }
+                },
+                itemCount: orderController.orderHistoryList.length + 1,
+              );
+            })
+          ],
+        ),
       ),
     );
   }

@@ -32,6 +32,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
       print(loginResult);
       if (loginResult['success']) {
         SharedPrefHelper.setIsLoggedInTrue();
+        SharedPrefHelper.setIsPartnerFalse();
         SharedPrefHelper.setName(loginResult['user']['name']);
         SharedPrefHelper.setUserToken(loginResult['token']);
         SharedPrefHelper.setPhone(loginResult['user']['phoneNumber'] ?? "");
@@ -42,7 +43,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
         SharedPrefHelper.setId(loginResult['user']['_id']);
         SharedPrefHelper.setBoxIsLockedd(loginResult['user']['boxIsLocked']);
         SharedPrefHelper.setBoxId(loginResult['user']['boxId'] ?? "");
-        print(loginResult['user']['orderHistory']);
+
         orderController
             .updateOrderHistoryList(loginResult['user']['orderHistory']);
         print(orderController.orderHistoryList.length);
